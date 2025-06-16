@@ -1,4 +1,4 @@
-package com.github.eventmanager.phoenix.controller; // or .phoenix.controller if in subfolder
+package com.github.thebloodyamateur.phoenix.controller; // or .phoenix.controller if in subfolder
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
