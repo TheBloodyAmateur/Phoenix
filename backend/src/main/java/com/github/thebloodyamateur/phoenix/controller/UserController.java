@@ -9,9 +9,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class UserController {
 
-    @Value("${application.description}")
-    private String description;
-
     @PostMapping("/user")
     public String createUser() {
         // Logic to create a user would go here
@@ -23,10 +20,4 @@ public class UserController {
         // Logic to retrieve a user would go here
         return "User details retrieved successfully!";
     }
-
-    @GetMapping("/description")
-    public String getDescription() {
-        return description;
-    }
-    
 }
