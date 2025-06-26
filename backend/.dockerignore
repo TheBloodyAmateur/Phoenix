@@ -1,0 +1,15 @@
+# Maven
+target/
+*.log
+
+
+# Build-Tools
+*.iml
+*.classpath
+*.project
+
+# Secrets & Konfigs
+.env
+*.pem
+*.key
+*.crt

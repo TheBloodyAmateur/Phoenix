@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
-    @PostMapping("")
-    public String authenticateString(@RequestBody String entity) {
+    @PostMapping("login")
+    public String authenticateUser(@RequestBody String entity) {
         //TODO: process POST request
         
         return entity;
