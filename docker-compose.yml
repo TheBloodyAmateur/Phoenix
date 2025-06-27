@@ -1,6 +1,6 @@
 services:
   db:
-    image: postgres:15
+    image: postgres:12
     container_name: phoenix-postgres
     environment:
       POSTGRES_DB: ${DB_NAME}
@@ -12,6 +12,8 @@ services:
       - pgdata:/var/lib/postgresql/data
 
   backend:
+    env_file:
+      - .env
     build:
       context: ./backend
       dockerfile: Dockerfile

@@ -1,20 +1,24 @@
-# === STAGE 1: Build JAR with Maven ===
-FROM maven:3.9-eclipse-temurin-24 AS build
+# Use a full JDK base image (includes javac internals)
+FROM eclipse-temurin:21-jdk AS builder
+
+# Set working directory
 WORKDIR /app
+
+# Copy pom and download dependencies first (for better caching)
+COPY pom.xml ./
+RUN apt-get update && apt-get install -y maven
+RUN mvn dependency:go-offline -B
 
 # Copy source code
-COPY pom.xml .
-COPY src ./src
+COPY . .
 
-# Package the application
+# Package the application (compile triggers annotation processing)
 RUN mvn clean package -DskipTests
 
-# === STAGE 2: Run the app ===
-FROM eclipse-temurin:24-jdk
+# Second stage: run with smaller JRE (optional)
+FROM eclipse-temurin:21-jre
 WORKDIR /app
+COPY --from=builder /app/target/phoenix-0.0.1-SNAPSHOT.jar app.jar
 
-# Copy the built JAR from stage 1
-COPY --from=build /app/target/*.jar app.jar
-
-# Run the application
+EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
