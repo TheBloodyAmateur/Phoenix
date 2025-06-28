@@ -1,6 +1,5 @@
 package com.github.thebloodyamateur.phoenix.security;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -12,23 +11,19 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.github.thebloodyamateur.phoenix.service.CustomUserDetailsService;
+import lombok.RequiredArgsConstructor;
 
 @Configuration
+@RequiredArgsConstructor
 public class WebSecurityConfig {
-    @Autowired
-    CustomUserDetailsService userDetailsService;
-    @Autowired
-    private AuthEntryPointJwt unauthorizedHandler;
+
+    private final SecurityProperties securityProperties;
+    private final AuthEntryPointJwt unauthorizedHandler;
+    private final AuthTokenFilter authTokenFilter;
 
     @Bean
-    public AuthTokenFilter authenticationJwtTokenFilter() {
-        return new AuthTokenFilter();
-    }
-
-    @Bean
-    public AuthenticationManager authenticationManager(
-            AuthenticationConfiguration authenticationConfiguration) throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
+            throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
@@ -38,17 +33,16 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(csrf -> csrf.disable())
-            .cors(cors -> cors.disable())
-            .exceptionHandling(exceptionHandling -> exceptionHandling.authenticationEntryPoint(unauthorizedHandler))
-            .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(authorizeRequests -> authorizeRequests.requestMatchers("/api/auth/**", "/api/test/all")
-                                    .permitAll()
-                                    .anyRequest().authenticated()
-            );
-        // Add the JWT Token filter before the UsernamePasswordAuthenticationFilter
-        http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(ex -> ex.authenticationEntryPoint(unauthorizedHandler))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(securityProperties.getPublicEndpoints().toArray(new String[0])).permitAll()
+                        .anyRequest().authenticated())
+                .addFilterBefore(authTokenFilter, UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
 }

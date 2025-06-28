@@ -91,7 +91,6 @@
 			<version>3.0.0</version>
 		</dependency>
 
-
 		<!-- JWT dependencies-->
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
