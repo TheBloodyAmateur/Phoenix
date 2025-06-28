@@ -1,8 +1,17 @@
 spring:
+  application:
+    name: phoenix
+
+  security:
+    user:
+      name: admin
+      password: secret
+
   datasource:
     url: ${SPRING_DATASOURCE_URL}
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
+
   jpa:
     hibernate:
       ddl-auto: validate
@@ -10,6 +19,7 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+
   flyway:
     enabled: true
     locations: classpath:db/migration
@@ -19,6 +29,28 @@ spring:
 
 server:
   port: 8080
+  servlet:
+    context-path: /api
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+        exclude: health,info
+  info:
+    env:
+      enabled: true
+
+info:
+  app:
+    name: Phoenix
+    description: Phoenix is a cloud application.
+    version: 1.0.0
+
+jwt:
+  secret: ${jwt_secret}
+  expiration: 3600
 
 security:
   public-endpoints:
