@@ -50,7 +50,7 @@ public class AuthController {
                             user.getUsername(),
                             user.getPassword()));
         } catch (Exception e) {
-            return ResponseEntity.status(401).body(new AuthTokenResponse("", "Authentication failed: " + e.getMessage()));
+            return ResponseEntity.status(401).body(new AuthTokenResponse("", "Authentication failed: Bad credentials"));
         }
 
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
@@ -60,14 +60,22 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<GeneralResponse> registerUser(@RequestBody AuthenticationRequest request) {
+
+        System.out.println("Registering user: " + request.getUsername() + " with password: " + request.getPassword());
+
         if (request.getUsername() == null || request.getPassword() == null ||
             request.getUsername().isEmpty() || request.getPassword().isEmpty()) {
             return ResponseEntity.badRequest().body(new GeneralResponse("Username and password must not be empty "));
         }
 
+        System.out.println("Checking if username already exists: " + request.getUsername() + " ... "  + userRepository.existsByUsername(request.getUsername()));
+
         if (userRepository.existsByUsername(request.getUsername())) {
+            System.out.println("Username already exists: " + request.getUsername());
             return ResponseEntity.badRequest().body(new GeneralResponse("Error: Username is already taken!"));
         }
+
+        System.out.println("Username is available, proceeding to create user.");
         
         // Create new user
         User newUser = new User(
