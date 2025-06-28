@@ -1,11 +1,11 @@
 package com.github.thebloodyamateur.phoenix.dto.auth.response;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
-public class AuthenticationResponse {
+@AllArgsConstructor
+public class AuthTokenResponse {
     private String token;
-    public AuthenticationResponse(String token) {
-        this.token = token;
-    }
+    private String message;
 }

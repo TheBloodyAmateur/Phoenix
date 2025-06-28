@@ -3,11 +3,15 @@ package com.github.thebloodyamateur.phoenix.controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.github.thebloodyamateur.phoenix.dto.GeneralResponse;
+import com.github.thebloodyamateur.phoenix.dto.auth.request.AuthenticationRequest;
+import com.github.thebloodyamateur.phoenix.dto.auth.response.AuthTokenResponse;
 import com.github.thebloodyamateur.phoenix.model.auth.User;
 import com.github.thebloodyamateur.phoenix.repository.UserRepository;
 import com.github.thebloodyamateur.phoenix.util.JwtUtil;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -21,38 +25,58 @@ import org.springframework.web.bind.annotation.RequestBody;
 public class AuthController {
     @Autowired
     AuthenticationManager authenticationManager;
+
     @Autowired
     UserRepository userRepository;
+
     @Autowired
     PasswordEncoder encoder;
+
     @Autowired
     JwtUtil jwtUtils;
 
     @PostMapping("login")
-    public String authenticateUser(@RequestBody User user) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        user.getUsername(),
-                        user.getPassword()
-                )
-        );
+    public ResponseEntity<AuthTokenResponse> authenticateUser(@RequestBody AuthenticationRequest user) {
+        Authentication authentication;
+
+        if (user.getUsername() == null || user.getPassword() == null || 
+            user.getUsername().isEmpty() || user.getPassword().isEmpty()) {
+            return ResponseEntity.badRequest().body(new AuthTokenResponse("", "Username and password must not be empty"));
+        }
+
+        try {
+            authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            user.getUsername(),
+                            user.getPassword()));
+        } catch (Exception e) {
+            return ResponseEntity.status(401).body(new AuthTokenResponse("", "Authentication failed: " + e.getMessage()));
+        }
+
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        return jwtUtils.generateToken(userDetails.getUsername());
+        String token = jwtUtils.generateToken(userDetails.getUsername());
+        return ResponseEntity.ok(new AuthTokenResponse(token, "User authenticated successfully!"));
     }
 
     @PostMapping("/signup")
-    public String registerUser(@RequestBody User user) {
-        if (userRepository.existsByUsername(user.getUsername())) {
-            return "Error: Username is already taken!";
+    public ResponseEntity<GeneralResponse> registerUser(@RequestBody AuthenticationRequest request) {
+        if (request.getUsername() == null || request.getPassword() == null ||
+            request.getUsername().isEmpty() || request.getPassword().isEmpty()) {
+            return ResponseEntity.badRequest().body(new GeneralResponse("Username and password must not be empty "));
         }
-        // Create new user's account
+
+        if (userRepository.existsByUsername(request.getUsername())) {
+            return ResponseEntity.badRequest().body(new GeneralResponse("Error: Username is already taken!"));
+        }
+        
+        // Create new user
         User newUser = new User(
                 null,
-                user.getUsername(),
-                encoder.encode(user.getPassword())
-        );
+                request.getUsername(),
+                encoder.encode(request.getPassword()));
         userRepository.save(newUser);
-        return "User registered successfully!";
+
+        return ResponseEntity.created(null).body(new GeneralResponse("User registered successfully!"));
     }
 
 }
