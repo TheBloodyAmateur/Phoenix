@@ -39,8 +39,7 @@ public class AuthController {
     public ResponseEntity<AuthTokenResponse> authenticateUser(@RequestBody AuthenticationRequest user) {
         Authentication authentication;
 
-        if (user.getUsername() == null || user.getPassword() == null || 
-            user.getUsername().isEmpty() || user.getPassword().isEmpty()) {
+        if (isUsernameEmptyOrNull(user)) {
             return ResponseEntity.badRequest().body(new AuthTokenResponse("", "Username and password must not be empty"));
         }
 
@@ -58,24 +57,17 @@ public class AuthController {
         return ResponseEntity.ok(new AuthTokenResponse(token, "User authenticated successfully!"));
     }
 
-    @PostMapping("/signup")
+    @PostMapping("signup")
     public ResponseEntity<GeneralResponse> registerUser(@RequestBody AuthenticationRequest request) {
 
-        System.out.println("Registering user: " + request.getUsername() + " with password: " + request.getPassword());
-
-        if (request.getUsername() == null || request.getPassword() == null ||
-            request.getUsername().isEmpty() || request.getPassword().isEmpty()) {
+        if (isUsernameEmptyOrNull(request)) {
             return ResponseEntity.badRequest().body(new GeneralResponse("Username and password must not be empty "));
         }
-
-        System.out.println("Checking if username already exists: " + request.getUsername() + " ... "  + userRepository.existsByUsername(request.getUsername()));
 
         if (userRepository.existsByUsername(request.getUsername())) {
             System.out.println("Username already exists: " + request.getUsername());
             return ResponseEntity.badRequest().body(new GeneralResponse("Error: Username is already taken!"));
         }
-
-        System.out.println("Username is available, proceeding to create user.");
         
         // Create new user
         User newUser = new User(
@@ -87,4 +79,8 @@ public class AuthController {
         return ResponseEntity.created(null).body(new GeneralResponse("User registered successfully!"));
     }
 
+    private boolean isUsernameEmptyOrNull(AuthenticationRequest user) {
+        return user.getUsername() == null || user.getPassword() == null || 
+            user.getUsername().isEmpty() || user.getPassword().isEmpty();
+    }
 }

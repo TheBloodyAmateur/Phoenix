@@ -26,6 +26,11 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${DB_PASS}
     ports:
       - "8080:8080"
+    develop:
+      watch:
+        - action: sync
+          path: .
+          target: /code
 
 volumes:
   pgdata:
