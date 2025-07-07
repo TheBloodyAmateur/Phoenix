@@ -5,10 +5,17 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.github.thebloodyamateur.phoenix.dto.GeneralResponse;
 import com.github.thebloodyamateur.phoenix.dto.auth.request.AuthenticationRequest;
+import com.github.thebloodyamateur.phoenix.dto.auth.request.RolesRequest;
 import com.github.thebloodyamateur.phoenix.dto.auth.response.AuthTokenResponse;
+import com.github.thebloodyamateur.phoenix.model.auth.Role;
 import com.github.thebloodyamateur.phoenix.model.auth.User;
+import com.github.thebloodyamateur.phoenix.repository.RoleRepository;
 import com.github.thebloodyamateur.phoenix.repository.UserRepository;
 import com.github.thebloodyamateur.phoenix.util.JwtUtil;
+
+import java.lang.reflect.Array;
+import java.util.Arrays;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +27,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.GetMapping;
-
+import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 @RequestMapping("/auth")
@@ -30,6 +37,9 @@ public class AuthController {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    RoleRepository roleRepository;
 
     @Autowired
     PasswordEncoder encoder;
@@ -86,9 +96,41 @@ public class AuthController {
     }
     
     @GetMapping("signup")
-    public ResponseEntity<Boolean> checkIfThereIsAnyAdmin() {
+    public ResponseEntity<GeneralResponse> checkIfThereIsAnyAdmin() {
         boolean exists = userRepository.existsByUsername("admin");
-        return ResponseEntity.ok(exists);
+        if(exists) {
+            return ResponseEntity.ok(new GeneralResponse("true"));
+        }
+        return ResponseEntity.ok(new GeneralResponse("false"));
+    }
+
+    @PostMapping("roles")
+    public ResponseEntity<GeneralResponse> postMethodName(@RequestBody RolesRequest entity) {
+        if (entity == null || entity.getRoleName() == null || entity.getRoleName().isEmpty()) {
+            return ResponseEntity.badRequest().body(new GeneralResponse("Role name must not be empty"));
+        }
+
+        if (roleRepository.existsByRole(entity.getRoleName())) {
+            return ResponseEntity.badRequest().body(new GeneralResponse("Error: Role already exists!"));
+        }
+
+        Role newRole = new Role(
+                null,
+                entity.getRoleName()
+        );
+        roleRepository.save(newRole);
+
+        return ResponseEntity.created(null).body(new GeneralResponse("Role created successfully!"));
+    }
+
+    @GetMapping("roles")
+    public List<String> getAllRoles() {
+        List<Role> roles = roleRepository.findAll();
+        List<String> responseBody = roles.stream()
+                .map(Role::toString)
+                .toList();
+
+        return responseBody;
     }
     
     private boolean isUsernameEmptyOrNull(AuthenticationRequest user) {

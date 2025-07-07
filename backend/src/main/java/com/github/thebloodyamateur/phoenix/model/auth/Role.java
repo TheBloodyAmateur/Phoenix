@@ -21,4 +21,9 @@ public class Role {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String role;
+
+    @Override
+    public String toString(){
+        return role;
+    }
 }
