@@ -12,6 +12,7 @@ services:
       - pgdata:/var/lib/postgresql/data
 
   backend:
+    restart: on-failure
     env_file:
       - .env
     build:
@@ -28,7 +29,7 @@ services:
       - "8080:8080"
     develop:
       watch:
-        - action: sync
+        - action: rebuild
           path: .
           target: /code
 
