@@ -60,7 +60,7 @@ jwt:
   expiration: 3600
 
 security:
-  public-endpoints:
+  publicEndpoints:
     - /auth/**
     - /swagger-ui.html
     - /swagger-ui/**
