@@ -19,6 +19,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.GetMapping;
+
 
 @RestController
 @RequestMapping("/auth")
@@ -73,12 +75,22 @@ public class AuthController {
         User newUser = new User(
                 null,
                 request.getUsername(),
-                encoder.encode(request.getPassword()));
+                encoder.encode(request.getPassword()),
+                new java.util.Date(),
+                new java.util.Date(),
+                true
+        );
         userRepository.save(newUser);
 
         return ResponseEntity.created(null).body(new GeneralResponse("User registered successfully!"));
     }
-
+    
+    @GetMapping("signup")
+    public ResponseEntity<Boolean> checkIfThereIsAnyAdmin() {
+        boolean exists = userRepository.existsByUsername("admin");
+        return ResponseEntity.ok(exists);
+    }
+    
     private boolean isUsernameEmptyOrNull(AuthenticationRequest user) {
         return user.getUsername() == null || user.getPassword() == null || 
             user.getUsername().isEmpty() || user.getPassword().isEmpty();

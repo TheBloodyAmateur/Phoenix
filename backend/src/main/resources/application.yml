@@ -55,3 +55,7 @@ jwt:
 security:
   public-endpoints:
     - /auth/**
+
+logging:
+  level:
+    org.flywaydb: DEBUG
