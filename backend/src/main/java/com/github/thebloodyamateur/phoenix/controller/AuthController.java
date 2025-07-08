@@ -7,7 +7,6 @@ import com.github.thebloodyamateur.phoenix.dto.GeneralResponse;
 import com.github.thebloodyamateur.phoenix.dto.auth.request.AuthenticationRequest;
 import com.github.thebloodyamateur.phoenix.dto.auth.response.AuthTokenResponse;
 import com.github.thebloodyamateur.phoenix.model.auth.Role;
-import com.github.thebloodyamateur.phoenix.model.auth.User;
 import com.github.thebloodyamateur.phoenix.repository.RoleRepository;
 import com.github.thebloodyamateur.phoenix.repository.UserRepository;
 import com.github.thebloodyamateur.phoenix.util.JwtUtil;
@@ -48,7 +47,8 @@ public class AuthController {
         Authentication authentication;
 
         if (isUsernameEmptyOrNull(user)) {
-            return ResponseEntity.badRequest().body(new AuthTokenResponse("", "Username and password must not be empty"));
+            return ResponseEntity.badRequest()
+                    .body(new AuthTokenResponse("", "Username and password must not be empty"));
         }
 
         try {
@@ -65,55 +65,17 @@ public class AuthController {
         return ResponseEntity.ok(new AuthTokenResponse(token, "User authenticated successfully!"));
     }
 
-    @PostMapping("signup")
-    public ResponseEntity<GeneralResponse> registerUser(@RequestBody AuthenticationRequest request) {
-
-        if (isUsernameEmptyOrNull(request)) {
-            return ResponseEntity.badRequest().body(new GeneralResponse("Username and password must not be empty "));
-        }
-
-        if (userRepository.existsByUsername(request.getUsername())) {
-            System.out.println("Username already exists: " + request.getUsername());
-            return ResponseEntity.badRequest().body(new GeneralResponse("Error: Username is already taken!"));
-        }
-        
-        // Create new user
-        User newUser = new User(
-                null,
-                request.getUsername(),
-                encoder.encode(request.getPassword()),
-                new java.util.Date(),
-                new java.util.Date(),
-                true,
-                null,
-                null
-        );
-        userRepository.save(newUser);
-
-        return ResponseEntity.created(null).body(new GeneralResponse("User registered successfully!"));
-    }
-    
-    @GetMapping("signup")
+    @GetMapping("login")
     public ResponseEntity<GeneralResponse> checkIfThereIsAnyAdmin() {
         boolean exists = userRepository.existsByUsername("admin");
-        if(exists) {
+        if (exists) {
             return ResponseEntity.ok(new GeneralResponse("true"));
         }
         return ResponseEntity.ok(new GeneralResponse("false"));
     }
 
-    @GetMapping("admin")
-    public List<String> getAllRoles() {
-        List<Role> roles = roleRepository.findAll();
-        List<String> responseBody = roles.stream()
-                .map(Role::toString)
-                .toList();
-
-        return responseBody;
-    }
-    
     private boolean isUsernameEmptyOrNull(AuthenticationRequest user) {
-        return user.getUsername() == null || user.getPassword() == null || 
-            user.getUsername().isEmpty() || user.getPassword().isEmpty();
+        return user.getUsername() == null || user.getPassword() == null ||
+                user.getUsername().isEmpty() || user.getPassword().isEmpty();
     }
 }

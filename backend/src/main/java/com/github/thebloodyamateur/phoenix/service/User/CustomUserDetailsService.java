@@ -1,4 +1,4 @@
-package com.github.thebloodyamateur.phoenix.service;
+package com.github.thebloodyamateur.phoenix.service.User;
 
 import java.util.Collections;
 
@@ -23,11 +23,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         if (user == null) {
             throw new UsernameNotFoundException("User Not Found with username: " + username);
         }
-        return new org.springframework.security.core.userdetails.User(
-                user.getUsername(),
-                user.getPassword(),
-                Collections.emptyList()
-        );
+        return new CustomUserDetails(user);
     }
 	
 }

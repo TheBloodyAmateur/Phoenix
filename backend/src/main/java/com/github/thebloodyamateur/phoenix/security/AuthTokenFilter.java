@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.github.thebloodyamateur.phoenix.service.CustomUserDetailsService;
+import com.github.thebloodyamateur.phoenix.service.User.CustomUserDetailsService;
 import com.github.thebloodyamateur.phoenix.util.JwtUtil;
 
 import jakarta.servlet.FilterChain;

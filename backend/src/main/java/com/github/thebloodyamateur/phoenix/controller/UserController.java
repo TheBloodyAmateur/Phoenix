@@ -1,6 +1,5 @@
 package com.github.thebloodyamateur.phoenix.controller;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,11 +13,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.github.thebloodyamateur.phoenix.dto.GeneralResponse;
 import com.github.thebloodyamateur.phoenix.dto.auth.request.RolesRequest;
-import com.github.thebloodyamateur.phoenix.dto.user.response.UserDTO;
+import com.github.thebloodyamateur.phoenix.dto.user.request.UserRequest;
+import com.github.thebloodyamateur.phoenix.dto.user.response.UserResponse;
 import com.github.thebloodyamateur.phoenix.model.auth.Role;
-import com.github.thebloodyamateur.phoenix.model.auth.User;
 import com.github.thebloodyamateur.phoenix.repository.RoleRepository;
 import com.github.thebloodyamateur.phoenix.repository.UserRepository;
+import com.github.thebloodyamateur.phoenix.service.User.UserService;
 
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,42 +30,29 @@ import org.springframework.web.bind.annotation.PathVariable;
 public class UserController {
 
     @Autowired
+    UserService userService;
+    
+    @Autowired
     UserRepository userRepository;
 
     @Autowired
     RoleRepository roleRepository;
-    
+
     @GetMapping("/users")
     public List<String> getAllUsers() {
-        // Logic to retrieve all users would go here
-        List<String> users = userRepository.findAll()
-                .stream()
-                .map(user -> user.getUsername())
-                .toList();
-        return users;
+        return userService.getAllUsers();
     }
 
     @GetMapping("/user/{id}")
-    public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
-        try {
-            if (!userRepository.existsById(id)) {
-                return ResponseEntity.notFound().build();
-            }
-            return userRepository.findById(id)
-                    .map(u -> new UserDTO(u.getId(), u.getUsername(), u.getFirstName(), u.getLastName()))
-                    .map(ResponseEntity::ok)
-                    .orElseGet(() -> {
-                        return ResponseEntity.notFound().build();
-                    });
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body(null);
-        }
+    public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
+        UserResponse user = userService.getUserById(id);
+        return ResponseEntity.ok().body(user);
     }
 
     @PostMapping("/user")
-    public String createUser() {
-        // Logic to create a user would go here
-        return "User created successfully!";
+    public ResponseEntity<GeneralResponse> registerUser(@RequestBody UserRequest request) {
+        userService.registerUser(request);
+        return ResponseEntity.ok().body(new GeneralResponse("User created sucessfully!"));
     }
 
     @PutMapping("/user/{id}")
@@ -79,27 +66,42 @@ public class UserController {
     }
 
     @DeleteMapping("/user/{id}")
-    public String deleteUser(@PathVariable String id) {
-        // Logic to delete a user by ID would go here
-        return "User with ID " + id + " deleted successfully!";
+    public ResponseEntity<GeneralResponse> deleteUser(@PathVariable Long id) {
+        userService.deleteUser(id);
+        return ResponseEntity.ok(new GeneralResponse("User deleted successfully!"));
     }
 
     @PostMapping("roles")
     public ResponseEntity<GeneralResponse> createNewRole(@RequestBody RolesRequest entity) {
         if (entity == null || entity.getRoleName() == null || entity.getRoleName().isEmpty()) {
+            System.out.println("Role name is empty or null");
             return ResponseEntity.badRequest().body(new GeneralResponse("Role name must not be empty"));
         }
 
         if (roleRepository.existsByRole(entity.getRoleName())) {
+            System.out.println("Role already exists: " + entity.getRoleName());
             return ResponseEntity.badRequest().body(new GeneralResponse("Error: Role already exists!"));
         }
+
+        System.out.println("Creating new role: " + entity.getRoleName());
 
         Role newRole = new Role(
                 null,
                 entity.getRoleName()
         );
         roleRepository.save(newRole);
+        System.out.println("Role created successfully: " + entity.getRoleName());
 
         return ResponseEntity.created(null).body(new GeneralResponse("Role created successfully!"));
+    }
+
+    @GetMapping("roles")
+    public List<String> getAllRoles() {
+        List<Role> roles = roleRepository.findAll();
+        List<String> responseBody = roles.stream()
+                .map(Role::toString)
+                .toList();
+
+        return responseBody;
     }
 }
