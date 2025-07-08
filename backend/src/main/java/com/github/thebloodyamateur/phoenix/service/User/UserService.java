@@ -21,10 +21,10 @@ public class UserService {
     @Autowired
     PasswordEncoder encoder;
 
-    public List<String> getAllUsers() {
+    public List<UserResponse> getAllUsers() {
         return userRepository.findAll()
                 .stream()
-                .map(user -> user.getUsername())
+                .map(user -> new UserResponse(user.getId(), user.getUsername(),user.getFirstName(), user.getLastName()))
                 .toList();
     }
 

@@ -39,7 +39,7 @@ public class UserController {
     RoleRepository roleRepository;
 
     @GetMapping("/users")
-    public List<String> getAllUsers() {
+    public List<UserResponse> getAllUsers() {
         return userService.getAllUsers();
     }
 
