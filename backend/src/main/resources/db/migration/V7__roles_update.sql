@@ -1,0 +1,6 @@
+ALTER TABLE roles
+DROP COLUMN role;
+
+ALTER TABLE roles
+ADD name VARCHAR(255);
+

@@ -2,15 +2,19 @@ package com.github.thebloodyamateur.phoenix.service.User;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.github.thebloodyamateur.phoenix.dto.auth.request.RolesRequest;
 import com.github.thebloodyamateur.phoenix.dto.user.request.UserRequest;
 import com.github.thebloodyamateur.phoenix.dto.user.response.UserResponse;
 import com.github.thebloodyamateur.phoenix.exception.ResourceNotFoundException;
+import com.github.thebloodyamateur.phoenix.model.auth.Role;
 import com.github.thebloodyamateur.phoenix.model.auth.User;
+import com.github.thebloodyamateur.phoenix.repository.RoleRepository;
 import com.github.thebloodyamateur.phoenix.repository.UserRepository;
 
 @Service
@@ -19,12 +23,13 @@ public class UserService {
     UserRepository userRepository;
 
     @Autowired
-    PasswordEncoder encoder;
+    RoleRepository roleRepository;
 
     public List<UserResponse> getAllUsers() {
         return userRepository.findAll()
                 .stream()
-                .map(user -> new UserResponse(user.getId(), user.getUsername(),user.getFirstName(), user.getLastName()))
+                .map(user -> new UserResponse(user.getId(), user.getUsername(), user.getFirstName(),
+                        user.getLastName()))
                 .toList();
     }
 
@@ -66,8 +71,69 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
+    public void createNewRole(RolesRequest roleName) {
+        if (isStringEmptyOrNull(roleName.getRoleName())) {
+            throw new IllegalArgumentException("Role name must not be empty");
+        }
+
+        if (userRepository.existsByUsername(roleName.getRoleName())) {
+            throw new IllegalArgumentException("Error: Role already exists!");
+        }
+
+        roleRepository.existsByName(roleName.getRoleName()).ifPresent(
+            exists -> {
+                if (exists) {
+                    throw new IllegalArgumentException("Role with name " + roleName.getRoleName() + " already exists");
+                }
+            }
+        );
+
+        Role newRole = new Role(null, roleName.getRoleName());
+        roleRepository.save(newRole);
+    }
+
+    public List<String> getAllRoles() {
+        return roleRepository.findAll().stream()
+                .map(Role::toString)
+                .toList();
+    }
+
     private boolean isStringEmptyOrNull(String value) {
         return value == null || value == null ||
                 value.isEmpty() || value.isEmpty();
+    }
+
+    public void assignRoleToUser(Long userId, RolesRequest rolesRequest) {
+        if (rolesRequest == null || isStringEmptyOrNull(rolesRequest.getRoleName())) {
+            throw new IllegalArgumentException("Role name must not be empty");
+        }
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User with the id " + userId + " was not found"));
+
+        Role role = roleRepository.findByName(rolesRequest.getRoleName());
+        if (role == null) {
+            throw new ResourceNotFoundException("Role with name " + rolesRequest.getRoleName() + " does not exist");
+        }
+
+        user.getRoles().add(role);
+        userRepository.save(user);
+    }
+
+    public void removeRoleFromUser(Long userId, RolesRequest rolesRequest) {
+        if (rolesRequest == null || isStringEmptyOrNull(rolesRequest.getRoleName())) {
+            throw new IllegalArgumentException("Role name must not be empty");
+        }
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User with the id " + userId + " was not found"));
+
+        Role role = roleRepository.findByName(rolesRequest.getRoleName());
+        if (role == null) {
+            throw new ResourceNotFoundException("Role with name " + rolesRequest.getRoleName() + " does not exist");
+        }
+
+        user.getRoles().remove(role);
+        userRepository.save(user);
     }
 }

@@ -15,7 +15,6 @@ import com.github.thebloodyamateur.phoenix.dto.GeneralResponse;
 import com.github.thebloodyamateur.phoenix.dto.auth.request.RolesRequest;
 import com.github.thebloodyamateur.phoenix.dto.user.request.UserRequest;
 import com.github.thebloodyamateur.phoenix.dto.user.response.UserResponse;
-import com.github.thebloodyamateur.phoenix.model.auth.Role;
 import com.github.thebloodyamateur.phoenix.repository.RoleRepository;
 import com.github.thebloodyamateur.phoenix.repository.UserRepository;
 import com.github.thebloodyamateur.phoenix.service.User.UserService;
@@ -71,37 +70,26 @@ public class UserController {
         return ResponseEntity.ok(new GeneralResponse("User deleted successfully!"));
     }
 
+    @PostMapping("/user/{id}/roles")
+    public ResponseEntity<GeneralResponse> assignRoleToUser(@PathVariable Long id, @RequestBody RolesRequest rolesRequest) {
+        userService.assignRoleToUser(id, rolesRequest);
+        return ResponseEntity.ok(new GeneralResponse("Role assigned to user successfully!"));
+    }
+
+    @DeleteMapping("/user/{id}/roles")
+    public ResponseEntity<GeneralResponse> removeRoleFromUser(@PathVariable Long id, @RequestBody RolesRequest rolesRequest) {
+        userService.removeRoleFromUser(id, rolesRequest);
+        return ResponseEntity.ok(new GeneralResponse("Role removed from user successfully!"));
+    }
+
     @PostMapping("roles")
     public ResponseEntity<GeneralResponse> createNewRole(@RequestBody RolesRequest entity) {
-        if (entity == null || entity.getRoleName() == null || entity.getRoleName().isEmpty()) {
-            System.out.println("Role name is empty or null");
-            return ResponseEntity.badRequest().body(new GeneralResponse("Role name must not be empty"));
-        }
-
-        if (roleRepository.existsByRole(entity.getRoleName())) {
-            System.out.println("Role already exists: " + entity.getRoleName());
-            return ResponseEntity.badRequest().body(new GeneralResponse("Error: Role already exists!"));
-        }
-
-        System.out.println("Creating new role: " + entity.getRoleName());
-
-        Role newRole = new Role(
-                null,
-                entity.getRoleName()
-        );
-        roleRepository.save(newRole);
-        System.out.println("Role created successfully: " + entity.getRoleName());
-
+        userService.createNewRole(entity);
         return ResponseEntity.created(null).body(new GeneralResponse("Role created successfully!"));
     }
 
     @GetMapping("roles")
     public List<String> getAllRoles() {
-        List<Role> roles = roleRepository.findAll();
-        List<String> responseBody = roles.stream()
-                .map(Role::toString)
-                .toList();
-
-        return responseBody;
+        return userService.getAllRoles();
     }
 }
