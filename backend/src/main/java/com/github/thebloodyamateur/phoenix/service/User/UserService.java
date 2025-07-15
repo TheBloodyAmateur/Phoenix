@@ -116,6 +116,10 @@ public class UserService {
             throw new ResourceNotFoundException("Role with name " + rolesRequest.getRoleName() + " does not exist");
         }
 
+        if (user.getRoles().stream().anyMatch(r -> r.getName().equals(role.getName()))) {
+            throw new IllegalArgumentException("User already has the role " + rolesRequest.getRoleName());
+        }
+
         user.getRoles().add(role);
         userRepository.save(user);
     }
@@ -135,5 +139,19 @@ public class UserService {
 
         user.getRoles().remove(role);
         userRepository.save(user);
+    }
+
+    public void deleteRole(Long id) {
+        if (!roleRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Role with the id " + id + " was not found");
+        }
+
+        // Check if the role is assigned to any user
+        if (userRepository.findAll().stream().anyMatch(user -> user.getRoles().stream()
+                .anyMatch(role -> role.getId().equals(id)))) {
+            throw new IllegalArgumentException("Role with id " + id + " cannot be deleted because it is assigned to one or more users");
+        }
+
+        roleRepository.deleteById(id);
     }
 }
