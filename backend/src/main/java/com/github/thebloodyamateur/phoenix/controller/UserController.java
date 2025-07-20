@@ -15,8 +15,6 @@ import com.github.thebloodyamateur.phoenix.dto.GeneralResponse;
 import com.github.thebloodyamateur.phoenix.dto.auth.request.RolesRequest;
 import com.github.thebloodyamateur.phoenix.dto.user.request.UserRequest;
 import com.github.thebloodyamateur.phoenix.dto.user.response.UserResponse;
-import com.github.thebloodyamateur.phoenix.repository.RoleRepository;
-import com.github.thebloodyamateur.phoenix.repository.UserRepository;
 import com.github.thebloodyamateur.phoenix.service.User.UserService;
 
 import org.springframework.web.bind.annotation.PutMapping;

@@ -2,10 +2,8 @@ package com.github.thebloodyamateur.phoenix.service.User;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.github.thebloodyamateur.phoenix.dto.auth.request.RolesRequest;
@@ -146,9 +144,7 @@ public class UserService {
             throw new ResourceNotFoundException("Role with the id " + id + " was not found");
         }
 
-        // Check if the role is assigned to any user
-        if (userRepository.findAll().stream().anyMatch(user -> user.getRoles().stream()
-                .anyMatch(role -> role.getId().equals(id)))) {
+        if(userRepository.existsUserWithRoleId(id)) {
             throw new IllegalArgumentException("Role with id " + id + " cannot be deleted because it is assigned to one or more users");
         }
 
