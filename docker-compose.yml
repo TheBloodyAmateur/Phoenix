@@ -32,6 +32,24 @@ services:
         - action: rebuild
           path: .
           target: /code
+  
+  frontend:
+    restart: on-failure
+    env_file:
+      - .env
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: phoenix-frontend
+    depends_on:
+      - backend
+    ports:
+      - "${FRONTEND_PORT}:80"
+    develop:
+      watch:
+        - action: rebuild
+          path: ./frontend
+          target: /app
 
 volumes:
   pgdata:
