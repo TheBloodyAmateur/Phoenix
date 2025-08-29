@@ -15,7 +15,10 @@ import com.github.thebloodyamateur.phoenix.dto.auth.response.AuthTokenResponse;
 import com.github.thebloodyamateur.phoenix.repository.UserRepository;
 import com.github.thebloodyamateur.phoenix.util.JwtUtil;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Component
+@Slf4j
 public class AuthService {
 
     @Autowired
@@ -34,8 +37,8 @@ public class AuthService {
         Authentication authentication;
 
         if (isUsernameEmptyOrNull(user)) {
-            return ResponseEntity.badRequest()
-                    .body(new AuthTokenResponse("", "Username and password must not be empty"));
+            log.warn("Username or password is empty or null");
+            return ResponseEntity.badRequest().body(new AuthTokenResponse("", "Username and password must not be empty"));
         }
 
         try {
@@ -44,6 +47,7 @@ public class AuthService {
                             user.getUsername(),
                             user.getPassword()));
         } catch (Exception e) {
+            log.error("Authentication failed: " + e.getMessage());
             return ResponseEntity.status(401).body(new AuthTokenResponse("", "Authentication failed: Bad credentials"));
         }
 
@@ -55,8 +59,10 @@ public class AuthService {
     public ResponseEntity<GeneralResponse> checkIfThereIsAnyAdmin() {
         boolean exists = userRepository.existsByUsername("admin");
         if (exists) {
+            log.info("Admin user exists in the system.");
             return ResponseEntity.ok(new GeneralResponse("true"));
         }
+        log.info("No admin user found in the system.");
         return ResponseEntity.ok(new GeneralResponse("false"));
     }
 
