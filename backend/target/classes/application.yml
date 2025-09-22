@@ -62,6 +62,7 @@ jwt:
 security:
   publicEndpoints:
     - /auth/login
+    - /users
     - /users/user
     - /swagger-ui.html
     - /swagger-ui/**
