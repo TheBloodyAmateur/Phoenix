@@ -11,6 +11,18 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
+  minio:
+    image: minio/minio
+    container_name: phoenix-minio
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    ports:
+      - "${MINIO_PORT}:9000"
+    command: server /data
+    volumes:
+      - miniodata:/var/lib/minio/data
+
   backend:
     restart: on-failure
     env_file:
@@ -41,8 +53,6 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     container_name: phoenix-frontend
-    depends_on:
-      - backend
     ports:
       - "${FRONTEND_PORT}:80"
     develop:
@@ -53,3 +63,4 @@ services:
 
 volumes:
   pgdata:
+  miniodata:
