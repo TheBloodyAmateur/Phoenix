@@ -1,4 +1,4 @@
-package com.github.thebloodyamateur.phoenix.service.User;
+package com.github.thebloodyamateur.phoenix.service;
 
 import java.util.ArrayList;
 import java.util.Collection;

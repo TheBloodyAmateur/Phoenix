@@ -1,4 +1,4 @@
-package com.github.thebloodyamateur.phoenix.security;
+package com.github.thebloodyamateur.phoenix.config;
 
 import java.util.List;
 

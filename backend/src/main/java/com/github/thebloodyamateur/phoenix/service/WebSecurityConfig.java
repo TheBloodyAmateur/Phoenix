@@ -1,4 +1,4 @@
-package com.github.thebloodyamateur.phoenix.security;
+package com.github.thebloodyamateur.phoenix.service;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,6 +10,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import com.github.thebloodyamateur.phoenix.config.SecurityProperties;
+import com.github.thebloodyamateur.phoenix.security.AuthEntryPointJwt;
+import com.github.thebloodyamateur.phoenix.security.AuthTokenFilter;
 
 import lombok.RequiredArgsConstructor;
 

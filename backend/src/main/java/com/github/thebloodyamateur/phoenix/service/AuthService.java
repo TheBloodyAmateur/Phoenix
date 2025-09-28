@@ -1,4 +1,4 @@
-package com.github.thebloodyamateur.phoenix.service.User;
+package com.github.thebloodyamateur.phoenix.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

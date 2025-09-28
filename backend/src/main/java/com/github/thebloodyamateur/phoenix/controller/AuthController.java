@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.github.thebloodyamateur.phoenix.dto.GeneralResponse;
 import com.github.thebloodyamateur.phoenix.dto.auth.request.AuthenticationRequest;
 import com.github.thebloodyamateur.phoenix.dto.auth.response.AuthTokenResponse;
-import com.github.thebloodyamateur.phoenix.service.User.AuthService;
+import com.github.thebloodyamateur.phoenix.service.AuthService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

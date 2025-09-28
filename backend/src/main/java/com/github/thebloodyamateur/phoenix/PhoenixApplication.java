@@ -4,7 +4,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
-import com.github.thebloodyamateur.phoenix.security.SecurityProperties;
+import com.github.thebloodyamateur.phoenix.config.SecurityProperties;
 
 @SpringBootApplication
 @EnableConfigurationProperties(SecurityProperties.class)
