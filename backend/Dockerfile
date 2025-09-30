@@ -1,16 +1,21 @@
-# Builder stage: Use Alpine JDK and install Maven
-FROM eclipse-temurin:21-jdk-alpine AS builder
+# Stage 1: Build with Alpine
+FROM eclipse-temurin:21-jdk-alpine AS build
 WORKDIR /app
-# Install Maven
-RUN apk add --no-cache maven
-COPY pom.xml ./
-RUN --mount=type=cache,target=/root/.m2 mvn -T 1C dependency:go-offline -B
-COPY . .
-RUN mvn -T 1C clean package -DskipTests
+COPY .mvn/ .mvn/
+COPY mvnw .
+COPY pom.xml .
+# Add Maven settings for caching and accelerating dependencies
+COPY settings.xml .
+ENV MAVEN_USER_HOME=/app/.m2
+RUN mkdir -p $MAVEN_USER_HOME
+RUN --mount=type=cache,target=/app/.m2 ./mvnw -s settings.xml dependency:go-offline -B
+COPY src ./src
+RUN --mount=type=cache,target=/app/.m2 ./mvnw -s settings.xml package -DskipTests -B
 
-# Runtime stage: Use Alpine JRE
-FROM eclipse-temurin:21-jre-alpine
+
+# Stage 2: Runtime with Distroless (minimal and secure)
+FROM gcr.io/distroless/java21-debian12
 WORKDIR /app
-COPY --from=builder /app/target/phoenix-0.0.1-SNAPSHOT.jar app.jar
+COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
