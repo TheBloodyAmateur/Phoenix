@@ -1,15 +1,30 @@
-# Maven
+# Java/Maven build artifacts
 target/
+*.jar
+*.war
+*.ear
+*.class
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.out/
+
+# Logs and temporary files
+logs/
+tmp/
 *.log
 
+# Git and Docker files
+.git/
+.gitignore
+Dockerfile
+.dockerignore
 
-# Build-Tools
-*.iml
-*.classpath
-*.project
-
-# Secrets & Konfigs
-.env
-*.pem
-*.key
-*.crt
+# Maven wrapper (keep these, but list them explicitly if you want to exclude everything else)
+!.mvn/
+!mvnw
+!mvnw.cmd

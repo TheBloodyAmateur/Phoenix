@@ -1,5 +1,5 @@
 # Stage 1: Build with Alpine
-FROM eclipse-temurin:21-jdk-alpine AS build
+FROM eclipse-temurin:21-jdk-jammy AS build
 WORKDIR /app
 COPY .mvn/ .mvn/
 COPY mvnw .
