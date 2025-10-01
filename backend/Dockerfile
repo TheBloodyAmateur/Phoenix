@@ -17,5 +17,5 @@ RUN --mount=type=cache,target=/app/.m2 ./mvnw -s settings.xml package -DskipTest
 FROM gcr.io/distroless/java21-debian12
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
-EXPOSE 8080
+EXPOSE ${BACKEND_PORT}
 ENTRYPOINT ["java", "-jar", "app.jar"]
