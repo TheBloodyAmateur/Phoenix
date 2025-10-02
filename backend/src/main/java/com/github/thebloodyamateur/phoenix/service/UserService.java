@@ -38,15 +38,6 @@ public class UserService {
     }
 
     public void registerUser(UserRequest request) {
-
-        if (isStringEmptyOrNull(request.getUsername())) {
-            throw new IllegalArgumentException("Username can not be null or empty!");
-        }
-
-        if (isStringEmptyOrNull(request.getPassword())) {
-            throw new IllegalArgumentException("Password can not be null or empty!");
-        }
-
         if (userRepository.existsByUsername(request.getUsername())) {
             throw new IllegalArgumentException("User with username " + request.getUsername() + " does already exist");
         }
