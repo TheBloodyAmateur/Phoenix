@@ -8,7 +8,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import com.github.thebloodyamateur.phoenix.model.auth.User;
+import com.github.thebloodyamateur.phoenix.model.User;
 import com.github.thebloodyamateur.phoenix.repository.UserRepository;
 
 @Service

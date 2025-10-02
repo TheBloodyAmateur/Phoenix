@@ -10,8 +10,8 @@ import com.github.thebloodyamateur.phoenix.dto.RolesRequest;
 import com.github.thebloodyamateur.phoenix.dto.UserRequest;
 import com.github.thebloodyamateur.phoenix.dto.UserResponse;
 import com.github.thebloodyamateur.phoenix.exception.ResourceNotFoundException;
-import com.github.thebloodyamateur.phoenix.model.auth.Role;
-import com.github.thebloodyamateur.phoenix.model.auth.User;
+import com.github.thebloodyamateur.phoenix.model.Role;
+import com.github.thebloodyamateur.phoenix.model.User;
 import com.github.thebloodyamateur.phoenix.repository.RoleRepository;
 import com.github.thebloodyamateur.phoenix.repository.UserRepository;
 
@@ -56,8 +56,6 @@ public class UserService {
                 .password(request.getPassword())
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
-                .createdAt(new Date())
-                .updatedAt(new Date())
                 .build();
         userRepository.save(newUser);
     }

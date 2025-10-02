@@ -1,4 +1,4 @@
-package com.github.thebloodyamateur.phoenix.model.auth;
+package com.github.thebloodyamateur.phoenix.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

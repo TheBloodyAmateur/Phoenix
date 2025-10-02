@@ -7,10 +7,11 @@ import java.util.Set;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-import com.github.thebloodyamateur.phoenix.model.auth.User;
-import com.github.thebloodyamateur.phoenix.model.auth.Role;
+import com.github.thebloodyamateur.phoenix.model.Role;
+import com.github.thebloodyamateur.phoenix.model.User;
+
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 public class CustomUserDetails implements UserDetails {
 
