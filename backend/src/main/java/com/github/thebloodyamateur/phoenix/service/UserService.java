@@ -6,9 +6,9 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.github.thebloodyamateur.phoenix.dto.auth.request.RolesRequest;
-import com.github.thebloodyamateur.phoenix.dto.user.request.UserRequest;
-import com.github.thebloodyamateur.phoenix.dto.user.response.UserResponse;
+import com.github.thebloodyamateur.phoenix.dto.RolesRequest;
+import com.github.thebloodyamateur.phoenix.dto.UserRequest;
+import com.github.thebloodyamateur.phoenix.dto.UserResponse;
 import com.github.thebloodyamateur.phoenix.exception.ResourceNotFoundException;
 import com.github.thebloodyamateur.phoenix.model.auth.Role;
 import com.github.thebloodyamateur.phoenix.model.auth.User;

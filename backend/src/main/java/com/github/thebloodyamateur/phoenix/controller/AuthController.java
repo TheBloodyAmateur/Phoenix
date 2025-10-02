@@ -3,9 +3,9 @@ package com.github.thebloodyamateur.phoenix.controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.github.thebloodyamateur.phoenix.dto.AuthTokenResponse;
+import com.github.thebloodyamateur.phoenix.dto.AuthenticationRequest;
 import com.github.thebloodyamateur.phoenix.dto.GeneralResponse;
-import com.github.thebloodyamateur.phoenix.dto.auth.request.AuthenticationRequest;
-import com.github.thebloodyamateur.phoenix.dto.auth.response.AuthTokenResponse;
 import com.github.thebloodyamateur.phoenix.service.AuthService;
 
 import org.springframework.beans.factory.annotation.Autowired;

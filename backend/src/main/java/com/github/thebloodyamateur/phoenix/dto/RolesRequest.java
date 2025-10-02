@@ -1,4 +1,4 @@
-package com.github.thebloodyamateur.phoenix.dto.auth.request;
+package com.github.thebloodyamateur.phoenix.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

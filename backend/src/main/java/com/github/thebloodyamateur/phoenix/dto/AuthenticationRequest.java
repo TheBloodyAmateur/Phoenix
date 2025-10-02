@@ -1,4 +1,4 @@
-package com.github.thebloodyamateur.phoenix.dto.auth.request;
+package com.github.thebloodyamateur.phoenix.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;

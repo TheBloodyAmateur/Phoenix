@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.github.thebloodyamateur.phoenix.dto.GeneralResponse;
-import com.github.thebloodyamateur.phoenix.dto.auth.request.RolesRequest;
-import com.github.thebloodyamateur.phoenix.dto.user.request.UserRequest;
-import com.github.thebloodyamateur.phoenix.dto.user.response.UserResponse;
+import com.github.thebloodyamateur.phoenix.dto.RolesRequest;
+import com.github.thebloodyamateur.phoenix.dto.UserRequest;
+import com.github.thebloodyamateur.phoenix.dto.UserResponse;
 import com.github.thebloodyamateur.phoenix.service.UserService;
 
 import org.springframework.web.bind.annotation.PutMapping;

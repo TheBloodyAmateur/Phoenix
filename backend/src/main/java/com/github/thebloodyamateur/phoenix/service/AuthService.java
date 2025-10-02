@@ -9,9 +9,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import com.github.thebloodyamateur.phoenix.dto.AuthTokenResponse;
+import com.github.thebloodyamateur.phoenix.dto.AuthenticationRequest;
 import com.github.thebloodyamateur.phoenix.dto.GeneralResponse;
-import com.github.thebloodyamateur.phoenix.dto.auth.request.AuthenticationRequest;
-import com.github.thebloodyamateur.phoenix.dto.auth.response.AuthTokenResponse;
 import com.github.thebloodyamateur.phoenix.repository.UserRepository;
 import com.github.thebloodyamateur.phoenix.util.JwtUtil;
 
