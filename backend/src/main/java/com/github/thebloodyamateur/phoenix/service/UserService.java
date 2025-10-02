@@ -1,6 +1,5 @@
 package com.github.thebloodyamateur.phoenix.service;
 
-import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,14 +25,12 @@ public class UserService {
     public List<UserResponse> getAllUsers() {
         return userRepository.findAll()
                 .stream()
-                .map(user -> new UserResponse(user.getId(), user.getUsername(), user.getFirstName(),
-                        user.getLastName()))
+                .map(user -> new UserResponse(user.getId(), user.getUsername(), user.getFirstName(), user.getLastName()))
                 .toList();
     }
 
     public UserResponse getUserById(Long id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User with the id " + id + " was not found"));
+        User user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User with the id " + id + " was not found"));
         return new UserResponse(user.getId(), user.getUsername(), user.getFirstName(), user.getLastName());
     }
 
@@ -59,10 +56,6 @@ public class UserService {
     }
 
     public void createNewRole(RolesRequest roleName) {
-        if (isStringEmptyOrNull(roleName.getRoleName())) {
-            throw new IllegalArgumentException("Role name must not be empty");
-        }
-
         if (userRepository.existsByUsername(roleName.getRoleName())) {
             throw new IllegalArgumentException("Error: Role already exists!");
         }
@@ -85,16 +78,7 @@ public class UserService {
                 .toList();
     }
 
-    private boolean isStringEmptyOrNull(String value) {
-        return value == null || value == null ||
-                value.isEmpty() || value.isEmpty();
-    }
-
     public void assignRoleToUser(Long userId, RolesRequest rolesRequest) {
-        if (rolesRequest == null || isStringEmptyOrNull(rolesRequest.getRoleName())) {
-            throw new IllegalArgumentException("Role name must not be empty");
-        }
-
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User with the id " + userId + " was not found"));
 
@@ -112,10 +96,6 @@ public class UserService {
     }
 
     public void removeRoleFromUser(Long userId, RolesRequest rolesRequest) {
-        if (rolesRequest == null || isStringEmptyOrNull(rolesRequest.getRoleName())) {
-            throw new IllegalArgumentException("Role name must not be empty");
-        }
-
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User with the id " + userId + " was not found"));
 
