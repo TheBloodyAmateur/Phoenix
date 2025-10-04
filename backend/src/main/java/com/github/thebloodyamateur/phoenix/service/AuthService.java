@@ -18,7 +18,7 @@ import com.github.thebloodyamateur.phoenix.util.JwtUtil;
 import lombok.extern.slf4j.Slf4j;
 
 @Component
-@Slf4j
+@Slf4j(topic = "AuthService")
 public class AuthService {
 
     @Autowired
@@ -35,17 +35,11 @@ public class AuthService {
 
     public ResponseEntity<AuthTokenResponse> authenticateUser( AuthenticationRequest user) {
         Authentication authentication;
-
-        if (isUsernameEmptyOrNull(user)) {
-            log.warn("Username or password is empty or null");
-            return ResponseEntity.badRequest().body(new AuthTokenResponse("", "Username and password must not be empty"));
-        }
-
+        log.info("User attempting to authenticate: " + user.getUsername());
         try {
             authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            user.getUsername(),
-                            user.getPassword()));
+                    new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword())
+            );
         } catch (Exception e) {
             log.error("Authentication failed: " + e.getMessage());
             return ResponseEntity.status(401).body(new AuthTokenResponse("", "Authentication failed: Bad credentials"));
@@ -64,10 +58,5 @@ public class AuthService {
         }
         log.info("No admin user found in the system.");
         return ResponseEntity.ok(new GeneralResponse("false"));
-    }
-
-    private boolean isUsernameEmptyOrNull(AuthenticationRequest user) {
-        return user.getUsername() == null || user.getPassword() == null ||
-                user.getUsername().isEmpty() || user.getPassword().isEmpty();
     }
 }

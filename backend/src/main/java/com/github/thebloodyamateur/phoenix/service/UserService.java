@@ -3,6 +3,7 @@ package com.github.thebloodyamateur.phoenix.service;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.github.thebloodyamateur.phoenix.dto.RolesRequest;
@@ -21,6 +22,9 @@ public class UserService {
 
     @Autowired
     RoleRepository roleRepository;
+
+    @Autowired
+    PasswordEncoder encoder;
 
     public List<UserResponse> getAllUsers() {
         return userRepository.findAll()
@@ -41,7 +45,7 @@ public class UserService {
 
         User newUser = new User().builder()
                 .username(request.getUsername())
-                .password(request.getPassword())
+                .password(encoder.encode(request.getPassword()))
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .build();

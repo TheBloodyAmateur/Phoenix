@@ -24,7 +24,7 @@ tmp/
 Dockerfile
 .dockerignore
 
-# Maven wrapper (keep these, but list them explicitly if you want to exclude everything else)
+# Maven wrapper
 !.mvn/
 !mvnw
 !mvnw.cmd
