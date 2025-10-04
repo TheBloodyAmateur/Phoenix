@@ -33,4 +33,16 @@ public class FileController {
             return ResponseEntity.status(500).body(new GeneralResponse("Failed to delete bucket."));
         }
     }
+
+    @DeleteMapping("/bucket/id/{id}")
+    public ResponseEntity<GeneralResponse> deleteBucketById(@PathVariable Long id) {
+        boolean isDeleted = fileService.deleteBucketById(id);
+        if (isDeleted) {
+            log.info("Bucket with ID '{}' deleted successfully.", id);
+            return ResponseEntity.ok(new GeneralResponse("Bucket deleted successfully."));
+        } else {
+            log.error("Failed to delete bucket with ID '{}'.", id);
+            return ResponseEntity.status(500).body(new GeneralResponse("Failed to delete bucket."));
+        }
+    }
 }
