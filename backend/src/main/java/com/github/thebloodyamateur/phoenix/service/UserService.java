@@ -10,8 +10,10 @@ import com.github.thebloodyamateur.phoenix.dto.RolesRequest;
 import com.github.thebloodyamateur.phoenix.dto.UserRequest;
 import com.github.thebloodyamateur.phoenix.dto.UserResponse;
 import com.github.thebloodyamateur.phoenix.exception.ResourceNotFoundException;
+import com.github.thebloodyamateur.phoenix.model.MinioBucket;
 import com.github.thebloodyamateur.phoenix.model.Role;
 import com.github.thebloodyamateur.phoenix.model.User;
+import com.github.thebloodyamateur.phoenix.repository.MinioBucketsRepository;
 import com.github.thebloodyamateur.phoenix.repository.RoleRepository;
 import com.github.thebloodyamateur.phoenix.repository.UserRepository;
 
@@ -25,6 +27,12 @@ public class UserService {
 
     @Autowired
     PasswordEncoder encoder;
+
+    @Autowired
+    MinioBucketsRepository minioBucketsRepository;
+
+    @Autowired
+    FileService fileService;
 
     public List<UserResponse> getAllUsers() {
         return userRepository.findAll()
@@ -49,7 +57,18 @@ public class UserService {
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .build();
+
+        MinioBucket newBucket = new MinioBucket().builder()
+                .name(request.getUsername())
+                .user(newUser)
+                .build();
+        
+        boolean bucketcreatedSuccessfully = fileService.createBucket(newBucket.getName());
+        if (!bucketcreatedSuccessfully) {
+            throw new RuntimeException("Failed to create bucket for user " + request.getUsername());
+        }
         userRepository.save(newUser);
+        minioBucketsRepository.save(newBucket);
     }
 
     public void deleteUser(Long id) {

@@ -10,6 +10,8 @@ services:
       - "${DB_PORT}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    networks:
+      - phoenix-network
 
   minio:
     image: minio/minio
@@ -19,9 +21,12 @@ services:
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
     ports:
       - "${MINIO_PORT}:9000"
-    command: server /data
+      - "9001:9001"
+    command: server /data --console-address ":9001" --address ":9000"
     volumes:
       - miniodata:/var/lib/minio/data
+    networks:
+      - phoenix-network
 
   backend:
     restart: on-failure
@@ -37,6 +42,9 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${DB_NAME}
       SPRING_DATASOURCE_USERNAME: ${DB_USER}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASS}
+      MINIO_URL: ${MINIO_URL}
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
     ports:
       - "${BACKEND_PORT}:8080"
     develop:
@@ -44,6 +52,8 @@ services:
         - action: rebuild
           path: .
           target: /code
+    networks:
+      - phoenix-network
   
   frontend:
     restart: on-failure
@@ -60,7 +70,13 @@ services:
         - action: rebuild
           path: ./frontend
           target: /app
+    networks:
+      - phoenix-network
 
 volumes:
   pgdata:
   miniodata:
+
+networks:
+  phoenix-network:
+    driver: bridge

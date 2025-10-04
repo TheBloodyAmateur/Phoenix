@@ -5,16 +5,19 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import io.minio.MinioClient;
+import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 
 @Configuration
+@Slf4j(topic = "MinioConfig")
 public class MinioConfig {
-    @Value("${minio.url}")
+    @Value("${MINIO_URL}")
     private String url;
 
-    @Value("${minio.accessKey}")
+    @Value("${MINIO_ACCESS_KEY}")
     private String accessKey;
 
-    @Value("${minio.secretKey}")
+    @Value("${MINIO_SECRET_KEY}")
     private String secretKey;
 
     @Bean
@@ -23,5 +26,11 @@ public class MinioConfig {
                 .endpoint(url)
                 .credentials(accessKey, secretKey)
                 .build();
+    }
+
+    @PostConstruct
+    public void init() {
+        log.info("MINIO_URL from env: " + System.getenv("MINIO_URL"));
+        log.info("MinIO URL: " + url);
     }
 }
