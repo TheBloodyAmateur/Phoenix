@@ -2,47 +2,35 @@ package com.github.thebloodyamateur.phoenix.controller;
 
 import org.springframework.web.bind.annotation.RestController;
 
+import com.github.thebloodyamateur.phoenix.dto.GeneralResponse;
 import com.github.thebloodyamateur.phoenix.service.FileService;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 
 @RestController
 @RequestMapping("/files")
+@Slf4j(topic = "FileController")
 public class FileController {
 
     @Autowired
     private FileService fileService;
 
-    @GetMapping("file/{id}")
-    public String getFile(@PathVariable String id, @RequestParam String param) {
-        return new String();
-    }
-
-    @PutMapping("file/{id}")
-    public String updateFile(@PathVariable String id, @RequestBody String entity) {
-        //TODO: process PUT request
-        
-        return entity;
-    }
-
-    @DeleteMapping("file/{id}")
-    public String deleteFile(@PathVariable String id) {
-        return "File with ID " + id + " deleted successfully!";
-    }
-
-    @PostMapping("file")
-    public String createFile(@RequestBody String entity) {
-        //TODO: process POST request
-        
-        return entity;
+    @DeleteMapping("/bucket/name/{bucketname}")
+    public ResponseEntity<GeneralResponse> deleteBucketByName(@PathVariable String bucketname) {
+        boolean isDeleted = fileService.deleteBucket(bucketname);
+        if (isDeleted) {
+            log.info("Bucket '{}' deleted successfully.", bucketname);
+            return ResponseEntity.ok(new GeneralResponse("Bucket deleted successfully."));
+        } else {
+            log.error("Failed to delete bucket '{}'.", bucketname);
+            return ResponseEntity.status(500).body(new GeneralResponse("Failed to delete bucket."));
+        }
     }
 }

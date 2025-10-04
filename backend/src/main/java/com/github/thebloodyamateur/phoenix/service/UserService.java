@@ -17,7 +17,10 @@ import com.github.thebloodyamateur.phoenix.repository.MinioBucketsRepository;
 import com.github.thebloodyamateur.phoenix.repository.RoleRepository;
 import com.github.thebloodyamateur.phoenix.repository.UserRepository;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
+@Slf4j(topic = "UserService")
 public class UserService {
     @Autowired
     UserRepository userRepository;
@@ -51,14 +54,14 @@ public class UserService {
             throw new IllegalArgumentException("User with username " + request.getUsername() + " does already exist");
         }
 
-        User newUser = new User().builder()
+        User newUser = User.builder()
                 .username(request.getUsername())
                 .password(encoder.encode(request.getPassword()))
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .build();
 
-        MinioBucket newBucket = new MinioBucket().builder()
+        MinioBucket newBucket = MinioBucket.builder()
                 .name(request.getUsername())
                 .user(newUser)
                 .build();
@@ -72,9 +75,16 @@ public class UserService {
     }
 
     public void deleteUser(Long id) {
+        log.info("Attempting to delete user with ID: {}", id);
         if (!userRepository.existsById(id)) {
             throw new ResourceNotFoundException("User with the id " + id + " was not found");
         }
+        User user = userRepository.findById(id).orElse(null);
+        if (user == null) {
+            throw new ResourceNotFoundException("User with the id " + id + " was not found");
+        }
+        Long bucketId = user.getMinioBucket().getId();
+        fileService.deleteBucketById(bucketId);
         userRepository.deleteById(id);
     }
 
