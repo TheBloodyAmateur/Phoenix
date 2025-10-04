@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import io.minio.MinioClient;
 
 @Service
-public class MinioService {
+public class FileService {
     @Autowired
     private MinioClient minioClient;
 }

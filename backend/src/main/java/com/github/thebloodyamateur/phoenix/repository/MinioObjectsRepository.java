@@ -19,6 +19,4 @@ public interface MinioObjectsRepository extends JpaRepository<MinioObject, Long>
         ") SELECT * FROM folder_contents WHERE type = 'FILE'",
         nativeQuery = true)
     List<MinioObject> findFilesInFolder(@Param("folderId") Long folderId);
-
-    List<MinioObject> findByBucketIdAndTypeAndNameContainingIgnoreCase(Long bucketId, ObjectType type, String searchTerm);
 }

@@ -2,7 +2,7 @@ package com.github.thebloodyamateur.phoenix.controller;
 
 import org.springframework.web.bind.annotation.RestController;
 
-import com.github.thebloodyamateur.phoenix.service.MinioService;
+import com.github.thebloodyamateur.phoenix.service.FileService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 public class FileController {
 
     @Autowired
-    private MinioService minioService;
+    private FileService fileService;
 
     @GetMapping("file/{id}")
     public String getFile(@PathVariable String id, @RequestParam String param) {
