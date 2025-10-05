@@ -1,15 +1,21 @@
 package com.github.thebloodyamateur.phoenix.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.github.thebloodyamateur.phoenix.dto.GeneralResponse;
 import com.github.thebloodyamateur.phoenix.model.MinioBucket;
+import com.github.thebloodyamateur.phoenix.model.MinioObject;
 import com.github.thebloodyamateur.phoenix.repository.MinioBucketsRepository;
+import com.github.thebloodyamateur.phoenix.repository.MinioObjectsRepository;
 
 import io.minio.BucketExistsArgs;
 import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
 import io.minio.RemoveBucketArgs;
+import jakarta.validation.constraints.Min;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -20,6 +26,9 @@ public class FileService {
 
     @Autowired
     private MinioBucketsRepository minioBucketsRepository;
+
+    @Autowired
+    private MinioObjectsRepository minioObjectsRepository;
 
     public boolean createBucket(String bucketName) {
         try {
@@ -75,5 +84,72 @@ public class FileService {
             return false;
         }
         
+    }
+
+    public ResponseEntity<GeneralResponse> uploadFile(MultipartFile fileData, String fileName, String bucketName) {
+        try {
+
+            MinioBucket bucket = minioBucketsRepository.findByBucketName(bucketName).orElse(null);
+
+            if (bucket == null) {
+                log.error("Bucket '{}' not found in database.", bucketName);
+                return ResponseEntity.status(500).body(new GeneralResponse("Bucket not found."));
+            }
+
+            minioClient.putObject(
+                io.minio.PutObjectArgs.builder()
+                    .bucket(bucketName)
+                    .object(fileName)
+                    .stream(fileData.getInputStream(), fileData.getSize(), -1)
+                    .build()
+            );
+            log.info("File '{}' uploaded successfully to bucket '{}'.", fileName, bucketName);
+
+            MinioObject minioObject = MinioObject.builder()
+                .name(fileName)
+                .minioPath(bucketName + "/" + fileName)
+                .size(fileData.getSize())
+                .type(MinioObject.ObjectType.FILE)
+                .build();
+            
+            minioObject.setMinioBucket(bucket);
+            minioObjectsRepository.save(minioObject);
+
+            return ResponseEntity.ok(new GeneralResponse("File uploaded successfully."));
+        } catch (Exception e) {
+            log.error("Error uploading file to bucket '{}': {}", bucketName, e.getMessage());
+            return ResponseEntity.status(500).body(new GeneralResponse("Failed to upload file."));
+        }
+    }
+
+    public ResponseEntity<GeneralResponse> deleteFile(String bucketName, String fileName) {
+        MinioBucket bucket = minioBucketsRepository.findByBucketName(bucketName).orElse(null);
+        if (bucket == null) {
+            log.error("Bucket '{}' not found in database.", bucketName);
+            return ResponseEntity.status(500).body(new GeneralResponse("Bucket not found."));
+        }
+
+        MinioObject minioObject = minioObjectsRepository.findByMinioBucketAndName(bucket, fileName).orElse(null);
+        if (minioObject == null) {
+            log.error("File '{}' not found in bucket '{}'.", fileName, bucketName);
+            return ResponseEntity.status(500).body(new GeneralResponse("File not found in the specified bucket."));
+        }
+
+        try {
+            minioClient.removeObject(
+                io.minio.RemoveObjectArgs.builder()
+                    .bucket(bucketName)
+                    .object(fileName)
+                    .build()
+            );
+            log.info("File '{}' deleted successfully from bucket '{}'.", fileName, bucketName);
+
+            minioObjectsRepository.delete(minioObject);
+
+            return ResponseEntity.ok(new GeneralResponse("File deleted successfully."));
+        } catch (Exception e) {
+            log.error("Error deleting file '{}' from bucket '{}': {}", fileName, bucketName, e.getMessage());
+            return ResponseEntity.status(500).body(new GeneralResponse("Failed to delete file."));
+        }
     }
 }

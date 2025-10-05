@@ -1,12 +1,13 @@
 package com.github.thebloodyamateur.phoenix.repository;
 
 import java.util.List;
+import java.util.Optional;
 
-import org.aspectj.apache.bcel.generic.ObjectType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import com.github.thebloodyamateur.phoenix.model.MinioBucket;
 import com.github.thebloodyamateur.phoenix.model.MinioObject;
 
 public interface MinioObjectsRepository extends JpaRepository<MinioObject, Long> {
@@ -19,4 +20,7 @@ public interface MinioObjectsRepository extends JpaRepository<MinioObject, Long>
         ") SELECT * FROM folder_contents WHERE type = 'FILE'",
         nativeQuery = true)
     List<MinioObject> findFilesInFolder(@Param("folderId") Long folderId);
+
+    @Query("SELECT o FROM MinioObject o WHERE o.minioBucket = :minioBucket AND o.name = :name")
+    Optional<MinioObject> findByMinioBucketAndName(MinioBucket minioBucket, String name);
 }

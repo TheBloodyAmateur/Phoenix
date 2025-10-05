@@ -1,6 +1,7 @@
 package com.github.thebloodyamateur.phoenix.controller;
 
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.github.thebloodyamateur.phoenix.dto.GeneralResponse;
 import com.github.thebloodyamateur.phoenix.service.FileService;
@@ -11,7 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+
 
 
 @RestController
@@ -44,5 +48,24 @@ public class FileController {
             log.error("Failed to delete bucket with ID '{}'.", id);
             return ResponseEntity.status(500).body(new GeneralResponse("Failed to delete bucket."));
         }
+    }
+
+    @PostMapping(value = "/upload", consumes = "multipart/form-data")
+    public ResponseEntity<GeneralResponse> uploadFile(
+        @RequestParam("fileData") MultipartFile fileData,
+        @RequestParam("fileName") String fileName,
+        @RequestParam("bucketName") String bucketName)
+    {
+        log.info("Received file upload request for file: " + fileName + " to bucket: " + bucketName);
+        return fileService.uploadFile(fileData, fileName, bucketName);
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<GeneralResponse> deleteFile(
+        @RequestParam("fileName") String fileName,
+        @RequestParam("bucketName") String bucketName)
+    {
+        log.info("Received file delete request for file: " + fileName + " from bucket: " + bucketName);
+        return fileService.deleteFile(bucketName, fileName);
     }
 }
