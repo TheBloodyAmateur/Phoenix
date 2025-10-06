@@ -1,5 +1,7 @@
 package com.github.thebloodyamateur.phoenix.service;
 
+import java.io.ByteArrayInputStream;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -14,8 +16,8 @@ import com.github.thebloodyamateur.phoenix.repository.MinioObjectsRepository;
 import io.minio.BucketExistsArgs;
 import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
+import io.minio.PutObjectArgs;
 import io.minio.RemoveBucketArgs;
-import jakarta.validation.constraints.Min;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -97,7 +99,7 @@ public class FileService {
             }
 
             minioClient.putObject(
-                io.minio.PutObjectArgs.builder()
+                PutObjectArgs.builder()
                     .bucket(bucketName)
                     .object(fileName)
                     .stream(fileData.getInputStream(), fileData.getSize(), -1)
@@ -151,5 +153,68 @@ public class FileService {
             log.error("Error deleting file '{}' from bucket '{}': {}", fileName, bucketName, e.getMessage());
             return ResponseEntity.status(500).body(new GeneralResponse("Failed to delete file."));
         }
+    }
+
+    public ResponseEntity<GeneralResponse> createDirectory(
+        String directoryName, 
+        String parentDirectory,
+        String bucketName
+    ) {
+        try {
+            // Check if bucket exists
+            MinioBucket bucket = minioBucketsRepository.findByBucketName(bucketName).orElse(null);
+            if (bucket == null) {
+                log.error("Bucket '{}' not found in database.", bucketName);
+                return ResponseEntity.status(422).body(new GeneralResponse("Bucket not found."));
+            }
+
+            log.info("Creating directory '{}' in bucket '{}'", directoryName, bucketName);
+
+            // If parentDirectory is provided, check if it exists and is a folder
+            if(parentDirectory != null && !parentDirectory.isEmpty()) {
+                MinioObject parent = minioObjectsRepository.findByMinioBucketAndName(bucket, parentDirectory).orElse(null);
+                if(parent == null || parent.getType() != MinioObject.ObjectType.FOLDER) {
+                    log.error("Parent directory '{}' not found or is not a folder in bucket '{}'.", parentDirectory, bucketName);
+                    return ResponseEntity.status(422).body(new GeneralResponse("Parent directory not found or is not a folder."));
+                }
+            }
+
+            log.debug("Parent directory check passed for '{}'", parentDirectory);
+            
+            // Create the directory path
+            String finalDirectoryPath = "";
+            if(parentDirectory != null && !parentDirectory.isEmpty()) {
+                finalDirectoryPath = parentDirectory + "/" + directoryName + "/";
+            } else {
+                finalDirectoryPath = directoryName + "/";
+            }
+
+            log.debug("Final directory path to create: '{}'", finalDirectoryPath);
+
+            // Create a zero-byte object to represent the directory
+            minioClient.putObject(
+                PutObjectArgs.builder()
+                    .bucket(bucketName)
+                    .object(finalDirectoryPath)
+                    .stream(new ByteArrayInputStream(new byte[0]), 0, -1)
+                    .build()
+            );
+            log.debug("Directory '{}' created successfully in bucket '{}'.", finalDirectoryPath, bucketName);
+
+            MinioObject minioObject = MinioObject.builder()
+                .name(directoryName)
+                .minioPath(bucketName + "/" + finalDirectoryPath)
+                .size(0L)
+                .type(MinioObject.ObjectType.FOLDER)
+                .build();
+
+            minioObject.setMinioBucket(bucket);
+            minioObjectsRepository.save(minioObject);
+            return ResponseEntity.ok(new GeneralResponse("Directory created successfully."));
+        } catch (Exception e) {
+            log.error("Error creating directory '{}' in bucket '{}': {}", directoryName, bucketName, e.getMessage());
+            return ResponseEntity.status(404).body(new GeneralResponse("Failed to create directory."));
+        }
+        
     }
 }

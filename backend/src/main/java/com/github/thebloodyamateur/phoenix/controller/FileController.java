@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
 
 
 
@@ -51,10 +53,10 @@ public class FileController {
     }
 
     @PostMapping(value = "/upload", consumes = "multipart/form-data")
-    public ResponseEntity<GeneralResponse> uploadFile(
-        @RequestParam("fileData") MultipartFile fileData,
-        @RequestParam("fileName") String fileName,
-        @RequestParam("bucketName") String bucketName)
+    public ResponseEntity<GeneralResponse> createFile(
+        @RequestParam MultipartFile fileData,
+        @RequestParam String fileName,
+        @RequestParam String bucketName)
     {
         log.info("Received file upload request for file: " + fileName + " to bucket: " + bucketName);
         return fileService.uploadFile(fileData, fileName, bucketName);
@@ -62,10 +64,21 @@ public class FileController {
 
     @DeleteMapping("/delete")
     public ResponseEntity<GeneralResponse> deleteFile(
-        @RequestParam("fileName") String fileName,
-        @RequestParam("bucketName") String bucketName)
+        @RequestParam String fileName,
+        @RequestParam String bucketName)
     {
         log.info("Received file delete request for file: " + fileName + " from bucket: " + bucketName);
         return fileService.deleteFile(bucketName, fileName);
     }
+
+    @PostMapping("directory")
+    public ResponseEntity<GeneralResponse> createDirectory(
+        @RequestParam String directoryName, 
+        @RequestParam String parentDirectory,
+        @RequestParam String bucketName
+    ) {
+        log.info("Received directory creation request for directory: " + directoryName + " in bucket: " + bucketName);
+        return fileService.createDirectory(directoryName, parentDirectory, bucketName);
+    }
+    
 }
